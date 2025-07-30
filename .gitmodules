@@ -1,0 +1,3 @@
+[submodule "libs/cpp_logger"]
+	path = libs/cpp_logger
+	url = https://github.com/RBagga1/cpp_logger.git
