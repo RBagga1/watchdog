@@ -1,7 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <string>
-#include "Logger.h"
+#include "logger.h"
 #include "watcher.h"
 
 namespace fs = std::filesystem;

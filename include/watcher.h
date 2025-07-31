@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <string>
 #include <thread>
-#include "Logger.h"
+#include "logger.h"
 
 const std::string LOGGER_NAME = "Watchdog";
 const std::filesystem::path LOG_FILE_PATH = "logs/watcher_log.txt";

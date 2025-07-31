@@ -30,4 +30,4 @@ set_target_properties(watchdog
 add_subdirectory(libs/cpp_logger)
 
 # Link logger library to the watchdog executable
-target_link_libraries(watchdog PRIVATE logger)
+target_link_libraries(watchdog PRIVATE cpp_logger)
