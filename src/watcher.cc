@@ -1,7 +1,12 @@
 #include "watcher.h"
 #include "fileutil.h"
 
-Watcher::Watcher(const std::filesystem::path &pathToWatch) : watchPath(pathToWatch), logger(LOGGER_NAME, LOG_FILE_PATH)
+Watcher::Watcher(const std::filesystem::path &pathToWatch)
+    : watchPath(pathToWatch),
+      logger(LoggerBuilder()
+                 .setName("Watcher")
+                 .setLogFilePath(LOG_FILE_PATH)
+                 .build())
 {
   logger.debug("Watcher initialized for path: " + watchPath.string());
 }
