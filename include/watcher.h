@@ -31,25 +31,25 @@ const std::unordered_set<std::string> IGNORE_FILE_TYPES = {
 class Watcher
 {
 public:
-  Watcher(const std::filesystem::path &pathToWatch);
+  Watcher(const std::filesystem::path &pathToWatch, const std::string &commandToExecute = "");
   ~Watcher();
 
   void startWatching();
   void stopWatching();
   // Helper methods
-  void handleFileChange_(const std::filesystem::path &filePath);
-  void debugMap_();
 
 private:
   // Member variables
   std::filesystem::path watchPath;
   Logger logger;
   std::unordered_map<std::string, std::filesystem::file_time_type> fileNameToLastEditTimeMap;
-  const std::string EXECUTE_CMD;
+  const std::string execute_cmd;
 
   // Watching thread and related variables
   std::thread watchThread_;
   bool doneWatching_{false};
+  void executeCommand_();
+  const time_t scanIntervalSeconds_ = 10;
 
   // Helper methods
   void watch_();

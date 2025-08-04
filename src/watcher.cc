@@ -1,8 +1,11 @@
 #include "watcher.h"
 #include "fileutil.h"
+#include <chrono>
+#include <format>
 
-Watcher::Watcher(const std::filesystem::path &pathToWatch)
+Watcher::Watcher(const std::filesystem::path &pathToWatch, const std::string &commandToExecute)
     : watchPath(pathToWatch),
+      execute_cmd(commandToExecute),
       logger(LoggerBuilder()
                  .setName("Watcher")
                  .setLogFilePath(LOG_FILE_PATH)
@@ -20,19 +23,73 @@ Watcher::~Watcher()
   }
 }
 
-void Watcher::handleFileChange_(const std::filesystem::path &filePath)
+void Watcher::executeCommand_()
 {
-  logger.info("File changed: " + filePath.string());
-  // TODO - implement logic to handle file changes, e.g., execute a command
+  logger.info("Changes found during scan, executing command at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
+
+  // Execute the command provided
+  if (!execute_cmd.empty())
+  {
+    logger.info("Executing command: " + execute_cmd);
+    int result = std::system(execute_cmd.c_str());
+    if (result != 0)
+    {
+      logger.error("Command execution failed with code: " + std::to_string(result));
+      return;
+    }
+
+    logger.info("Command executed successfully.");
+  }
+}
+
+void Watcher::watch_()
+{
+  logger.info("Performing initial scan for changes in path: " + watchPath.string());
+  scanOnce_(); // Initial scan to populate the map
+
+  while (!doneWatching_)
+  {
+    std::this_thread::sleep_for(std::chrono::seconds(scanIntervalSeconds_));
+    scanOnce_();
+  }
+}
+
+void Watcher::startWatching()
+{
+  if (watchThread_.joinable())
+  {
+    logger.warning("Watcher thread is already running.");
+    return;
+  }
+
+  watchThread_ = std::thread(&Watcher::watch_, this);
+  logger.info("Watcher started for path: " + watchPath.string());
+}
+
+void Watcher::stopWatching()
+{
+  doneWatching_ = true;
+
+  if (!watchThread_.joinable())
+  {
+    logger.warning("Watcher thread is not running.");
+    return;
+  }
+
+  watchThread_.join();
+  logger.info("Watcher stopped for path: " + watchPath.string());
 }
 
 void Watcher::scanOnce_()
 {
-  logger.debug("Scanning once for changes in path: " + watchPath.string());
-  std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
+  logger.info(
+      "Scanning once for changes in path: " + watchPath.string() +
+      " at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
+  bool changesFound = false;
 
+  std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
   for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(watchPath, iteratorOptions);
-       iterator_ptr != std::filesystem::end(iterator_ptr);
+       iterator_ptr != std::filesystem::recursive_directory_iterator();
        ++iterator_ptr)
   {
     const auto &entry = *iterator_ptr;
@@ -62,18 +119,16 @@ void Watcher::scanOnce_()
       if (fileNameToLastEditTimeMap.find(filePathStr) == fileNameToLastEditTimeMap.end() ||
           fileNameToLastEditTimeMap[filePathStr] < lastWriteTime)
       {
-        handleFileChange_(filePath);
-        fileNameToLastEditTimeMap[filePathStr] = lastWriteTime;
+        changesFound = true;
+        logger.info("Change detected in file: " + filePathStr);
       }
+      fileNameToLastEditTimeMap[filePathStr] = lastWriteTime;
     }
   }
-}
 
-void Watcher::debugMap_()
-{
-  logger.debug("Current file edit times:");
-  for (const auto &pair : fileNameToLastEditTimeMap)
+  if (changesFound)
   {
-    logger.debug("File: " + pair.first + ", Last Edit Time: " + std::format("{}", std::chrono::file_clock::to_sys(pair.second)));
+    logger.info("Changes detected during scan, executing command.");
+    executeCommand_();
   }
 }
