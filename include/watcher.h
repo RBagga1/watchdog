@@ -31,7 +31,9 @@ const std::unordered_set<std::string> IGNORE_FILE_TYPES = {
 class Watcher
 {
 public:
-  Watcher(const std::filesystem::path &pathToWatch, const std::string &commandToExecute = "");
+  Watcher(const std::filesystem::path &pathToWatch,
+          const std::string &commandToExecute = "",
+          LogLevel minimumLogLevel = LogLevel::INFO);
   ~Watcher();
 
   void startWatching();

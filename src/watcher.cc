@@ -3,12 +3,15 @@
 #include <chrono>
 #include <format>
 
-Watcher::Watcher(const std::filesystem::path &pathToWatch, const std::string &commandToExecute)
+Watcher::Watcher(const std::filesystem::path &pathToWatch,
+                 const std::string &commandToExecute,
+                 LogLevel minimumLogLevel)
     : watchPath(pathToWatch),
       execute_cmd(commandToExecute),
       logger(LoggerBuilder()
                  .setName("Watcher")
                  .setLogFilePath(LOG_FILE_PATH)
+                 .setMinimumLogLevel(minimumLogLevel)
                  .build())
 {
   logger.debug("Watcher initialized for path: " + watchPath.string());

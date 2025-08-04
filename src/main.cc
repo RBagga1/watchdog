@@ -6,13 +6,23 @@
 
 namespace fs = std::filesystem;
 
-int main()
+int main(int argc, char *argv[])
 {
+    LogLevel logLevel = LogLevel::INFO;
+    std::vector<std::string> args(argv + 1, argv + argc);
+    for (const auto &arg : args)
+    {
+        if (arg == "--debug" || arg == "-d")
+        {
+            logLevel = LogLevel::DEBUG;
+        }
+    }
+
     const std::filesystem::path pathToWatch = fs::current_path();
     const std::string cmd = "cmake --build build";
     try
     {
-        Watcher watcher(pathToWatch, cmd);
+        Watcher watcher(pathToWatch, cmd, logLevel);
 
         watcher.startWatching();
 
