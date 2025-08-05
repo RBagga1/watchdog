@@ -14,6 +14,7 @@ add_executable(watchdog
     src/main.cc
     src/watcher.cc
     src/fileutil.cc
+    src/config.cc
 )
 
 # Dir containing watchdog's headers
@@ -30,5 +31,8 @@ set_target_properties(watchdog
 # Add the subdirectory containing the logger's CMakeLists.txt
 add_subdirectory(libs/cpp_logger)
 
+# Add the subdirectory for nlohmann/json lib
+add_subdirectory(libs/json)
+
 # Link logger library to the watchdog executable
-target_link_libraries(watchdog PRIVATE cpp_logger)
+target_link_libraries(watchdog PRIVATE cpp_logger nlohmann_json::nlohmann_json)

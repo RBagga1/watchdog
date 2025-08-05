@@ -3,38 +3,37 @@
 #include <chrono>
 #include <format>
 
-Watcher::Watcher(const std::filesystem::path &pathToWatch,
-                 const std::string &commandToExecute,
+Watcher::Watcher(WatcherConfig config,
                  LogLevel minimumLogLevel)
-    : watchPath(pathToWatch),
-      execute_cmd(commandToExecute),
+    : config_(config),
       logger(LoggerBuilder()
-                 .setName("Watcher")
-                 .setLogFilePath(LOG_FILE_PATH)
+                 .setName(config.loggerName)
+                 .setLogFilePath(config.logFilePath)
                  .setMinimumLogLevel(minimumLogLevel)
                  .build())
 {
-  logger.debug("Watcher initialized for path: " + watchPath.string());
+  logger.debug("Watcher initialized for path: " + config_.pathToWatch.string());
 }
 
 Watcher::~Watcher()
 {
-  logger.debug("watcher destructor called for path: " + watchPath.string());
+  logger.debug("watcher destructor called for path: " + config_.pathToWatch.string());
   {
     doneWatching_ = true;
-    logger.debug("Watcher stopped for path: " + watchPath.string());
+    logger.debug("Watcher stopped for path: " + config_.pathToWatch.string());
   }
 }
 
 void Watcher::executeCommand_()
 {
-  logger.info("Changes found during scan, executing command at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
+  logger.info("Changes found during scan, executing command at time: " +
+              std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
 
   // Execute the command provided
-  if (!execute_cmd.empty())
+  if (!config_.commandToExecute.empty())
   {
-    logger.info("Executing command: " + execute_cmd);
-    int result = std::system(execute_cmd.c_str());
+    logger.info("Executing command: " + config_.commandToExecute);
+    int result = std::system(config_.commandToExecute.c_str());
     if (result != 0)
     {
       logger.error("Command execution failed with code: " + std::to_string(result));
@@ -47,12 +46,12 @@ void Watcher::executeCommand_()
 
 void Watcher::watch_()
 {
-  logger.info("Performing initial scan for changes in path: " + watchPath.string());
+  logger.info("Performing initial scan for changes in path: " + config_.pathToWatch.string());
   scanOnce_(); // Initial scan to populate the map
 
   while (!doneWatching_)
   {
-    std::this_thread::sleep_for(std::chrono::seconds(scanIntervalSeconds_));
+    std::this_thread::sleep_for(std::chrono::seconds(config_.scanIntervalSeconds));
     scanOnce_();
   }
 }
@@ -66,7 +65,7 @@ void Watcher::startWatching()
   }
 
   watchThread_ = std::thread(&Watcher::watch_, this);
-  logger.info("Watcher started for path: " + watchPath.string());
+  logger.info("Watcher started for path: " + config_.pathToWatch.string());
 }
 
 void Watcher::stopWatching()
@@ -80,18 +79,18 @@ void Watcher::stopWatching()
   }
 
   watchThread_.join();
-  logger.info("Watcher stopped for path: " + watchPath.string());
+  logger.info("Watcher stopped for path: " + config_.pathToWatch.string());
 }
 
 void Watcher::scanOnce_()
 {
   logger.info(
-      "Scanning once for changes in path: " + watchPath.string() +
+      "Scanning once for changes in path: " + config_.pathToWatch.string() +
       " at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
   bool changesFound = false;
 
   std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
-  for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(watchPath, iteratorOptions);
+  for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(config_.pathToWatch, iteratorOptions);
        iterator_ptr != std::filesystem::recursive_directory_iterator();
        ++iterator_ptr)
   {
@@ -99,7 +98,7 @@ void Watcher::scanOnce_()
     const auto &filePath = entry.path();
 
     // Skip directory if in ignore list
-    if (entry.is_directory() && IGNORE_DIRS.count(filePath.filename().string()))
+    if (entry.is_directory() && config_.ignoreDirs.count(filePath.filename().string()))
     {
       iterator_ptr.disable_recursion_pending();
       logger.debug("Ignoring directory: " + filePath.string());
@@ -110,7 +109,7 @@ void Watcher::scanOnce_()
     if (entry.is_regular_file())
     {
       const auto &filePath = entry.path();
-      if (IGNORE_FILE_TYPES.count(filePath.extension().string()))
+      if (config_.ignoreFileTypes.count(filePath.extension().string()))
       {
         logger.debug("Ignoring file: " + filePath.string());
         continue;

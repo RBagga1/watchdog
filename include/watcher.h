@@ -7,32 +7,12 @@
 #include <string>
 #include <thread>
 #include "logger.h"
-
-const std::string LOGGER_NAME = "Watchdog";
-const std::filesystem::path LOG_FILE_PATH = "logs/watcher_log.log";
-const std::unordered_set<std::string> IGNORE_DIRS = {
-    ".git",
-    ".vscode",
-    "build",
-    "logs",
-};
-const std::unordered_set<std::string> IGNORE_FILE_TYPES = {
-    ".log",
-    ".tmp",
-    ".o",
-    ".a",
-    ".so",
-    ".d",
-    ".gitmodules",
-    ".gitignore",
-    ".git",
-};
+#include "config.h"
 
 class Watcher
 {
 public:
-  Watcher(const std::filesystem::path &pathToWatch,
-          const std::string &commandToExecute = "",
+  Watcher(WatcherConfig config,
           LogLevel minimumLogLevel = LogLevel::INFO);
   ~Watcher();
 
@@ -42,16 +22,14 @@ public:
 
 private:
   // Member variables
-  std::filesystem::path watchPath;
+  const WatcherConfig config_;
   Logger logger;
   std::unordered_map<std::string, std::filesystem::file_time_type> fileNameToLastEditTimeMap;
-  const std::string execute_cmd;
 
   // Watching thread and related variables
   std::thread watchThread_;
   bool doneWatching_{false};
   void executeCommand_();
-  const time_t scanIntervalSeconds_ = 10;
 
   // Helper methods
   void watch_();

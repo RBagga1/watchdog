@@ -1,0 +1,24 @@
+{
+  "scanIntervalSeconds": 10,
+  "ignoreDirs": [
+    ".git",
+    ".vscode",
+    "build",
+    "logs"
+  ],
+  "ignoreFileTypes": [
+    ".log",
+    ".tmp",
+    ".o",
+    ".a",
+    ".so",
+    ".d",
+    ".gitmodules",
+    ".gitignore",
+    ".git"
+  ],
+  "pathToWatch": "src",
+  "commandToExecute": "cmake --build build",
+  "logFilePath": "logs/watcher_log.log",
+  "loggerName": "WatchDog"
+}

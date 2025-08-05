@@ -3,6 +3,7 @@
 #include <string>
 #include "logger.h"
 #include "watcher.h"
+#include "config.h"
 
 namespace fs = std::filesystem;
 
@@ -18,11 +19,9 @@ int main(int argc, char *argv[])
         }
     }
 
-    const std::filesystem::path pathToWatch = fs::current_path();
-    const std::string cmd = "cmake --build build";
     try
     {
-        Watcher watcher(pathToWatch, cmd, logLevel);
+        Watcher watcher(loadConfig("config.json"), logLevel);
 
         watcher.startWatching();
 
@@ -38,7 +37,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    std::cout << "Testing the build watchdog!" << std::endl;
-    std::cout << "Exiting program." << std::endl;
+    std::cout << "Watchdog exiting successfully." << std::endl;
     return 0;
 }
