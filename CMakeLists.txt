@@ -15,6 +15,7 @@ add_executable(watchdog
     src/watcher.cc
     src/fileutil.cc
     src/config.cc
+    src/checkargs.cc
 )
 
 # Dir containing watchdog's headers
