@@ -17,7 +17,6 @@
     ".gitignore",
     ".git"
   ],
-  "pathToWatch": "src",
   "commandToExecute": "cmake --build build",
   "logFilePath": "logs/watcher_log.log",
   "loggerName": "WatchDog"

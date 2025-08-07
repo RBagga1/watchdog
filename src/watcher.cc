@@ -4,23 +4,25 @@
 #include <format>
 
 Watcher::Watcher(WatcherConfig config,
+                 std::filesystem::path pathToWatch,
                  LogLevel minimumLogLevel)
     : config_(config),
+      pathToWatch_(pathToWatch),
       logger(LoggerBuilder()
                  .setName(config.loggerName)
                  .setLogFilePath(config.logFilePath)
                  .setMinimumLogLevel(minimumLogLevel)
                  .build())
 {
-  logger.debug("Watcher initialized for path: " + config_.pathToWatch.string());
+  logger.debug("Watcher initialized for path: " + pathToWatch_.string());
 }
 
 Watcher::~Watcher()
 {
-  logger.debug("watcher destructor called for path: " + config_.pathToWatch.string());
+  logger.debug("watcher destructor called for path: " + pathToWatch_.string());
   {
     doneWatching_ = true;
-    logger.debug("Watcher stopped for path: " + config_.pathToWatch.string());
+    logger.debug("Watcher stopped for path: " + pathToWatch_.string());
   }
 }
 
@@ -46,7 +48,7 @@ void Watcher::executeCommand_()
 
 void Watcher::watch_()
 {
-  logger.info("Performing initial scan for changes in path: " + config_.pathToWatch.string());
+  logger.info("Performing initial scan for changes in path: " + pathToWatch_.string());
   scanOnce_(); // Initial scan to populate the map
 
   while (!doneWatching_)
@@ -65,7 +67,7 @@ void Watcher::startWatching()
   }
 
   watchThread_ = std::thread(&Watcher::watch_, this);
-  logger.info("Watcher started for path: " + config_.pathToWatch.string());
+  logger.info("Watcher started for path: " + pathToWatch_.string());
 }
 
 void Watcher::stopWatching()
@@ -79,18 +81,18 @@ void Watcher::stopWatching()
   }
 
   watchThread_.join();
-  logger.info("Watcher stopped for path: " + config_.pathToWatch.string());
+  logger.info("Watcher stopped for path: " + pathToWatch_.string());
 }
 
 void Watcher::scanOnce_()
 {
   logger.info(
-      "Scanning once for changes in path: " + config_.pathToWatch.string() +
+      "Scanning once for changes in path: " + pathToWatch_.string() +
       " at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
   bool changesFound = false;
 
   std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
-  for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(config_.pathToWatch, iteratorOptions);
+  for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(pathToWatch_, iteratorOptions);
        iterator_ptr != std::filesystem::recursive_directory_iterator();
        ++iterator_ptr)
   {

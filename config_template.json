@@ -2,7 +2,6 @@
   "scanIntervalSeconds": 5,
   "ignoreDirs": [],
   "ignoreFileTypes": [],
-  "pathToWatch": ".",
   "commandToExecute": "echo 'File changed!'",
   "logFilePath": "watcher_log.log",
   "loggerName": "DefaultLogger"

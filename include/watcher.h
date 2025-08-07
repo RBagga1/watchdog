@@ -13,6 +13,7 @@ class Watcher
 {
 public:
   Watcher(WatcherConfig config,
+          std::filesystem::path pathToWatch,
           LogLevel minimumLogLevel = LogLevel::INFO);
   ~Watcher();
 
@@ -23,6 +24,7 @@ public:
 private:
   // Member variables
   const WatcherConfig config_;
+  const std::filesystem::path &pathToWatch_;
   Logger logger;
   std::unordered_map<std::string, std::filesystem::file_time_type> fileNameToLastEditTimeMap;
 

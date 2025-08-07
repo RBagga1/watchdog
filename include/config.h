@@ -17,7 +17,6 @@ typedef struct
   const time_t scanIntervalSeconds;                      // Interval between scans in seconds
   const std::unordered_set<std::string> ignoreDirs;      // Directories to ignore
   const std::unordered_set<std::string> ignoreFileTypes; // File types to ignore
-  const std::filesystem::path pathToWatch;               // Path to watch
   const std::string commandToExecute;                    // Command to execute
   const std::string logFilePath;                         // Log file path
   const std::string loggerName;                          // Logger name
