@@ -16,8 +16,8 @@ enum class ArgParseResult
 
 ArgParseResult validateArgs(
     std::vector<std::string> &args,
-    std::string &pathToWatch,
-    LogLevel &logLevel);
+    std::string *pathToWatch,
+    LogLevel *logLevel);
 
 void printUsage();
 

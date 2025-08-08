@@ -5,6 +5,7 @@
 #include "watcher.h"
 #include "config.h"
 #include "checkargs.h"
+#include "system.h"
 
 namespace fs = std::filesystem;
 
@@ -13,7 +14,7 @@ int main(int argc, char *argv[])
     LogLevel logLevel = LogLevel::INFO;
     std::string pathToWatch;
     std::vector<std::string> args(argv + 1, argv + argc);
-    ArgParseResult result = validateArgs(args, pathToWatch, logLevel);
+    ArgParseResult result = validateArgs(args, &pathToWatch, &logLevel);
 
     if (result == ArgParseResult::HELP_REQUESTED)
     {

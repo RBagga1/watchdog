@@ -2,14 +2,14 @@
 
 ArgParseResult validateArgs(
     std::vector<std::string> &args,
-    std::string &pathToWatch,
-    LogLevel &logLevel)
+    std::string *pathToWatch,
+    LogLevel *logLevel)
 {
   for (int i = 0; i < args.size(); i++)
   {
     if (args[i] == "--debug" || args[i] == "-d")
     {
-      logLevel = LogLevel::DEBUG;
+      *logLevel = LogLevel::DEBUG;
     }
     else if (args[i] == "--help" || args[i] == "-h")
     {
@@ -28,10 +28,10 @@ ArgParseResult validateArgs(
         }
 
         // Valid string provided
-        pathToWatch = args[++i];
-        if (!std::filesystem::exists(pathToWatch))
+        *pathToWatch = args[++i];
+        if (!std::filesystem::exists(*pathToWatch))
         {
-          printErrorAndUsage("Provided path does not exist: " + pathToWatch);
+          printErrorAndUsage("Provided path does not exist: " + *pathToWatch);
           return ArgParseResult::ERROR;
         }
       }
@@ -39,7 +39,7 @@ ArgParseResult validateArgs(
   }
 
   // If no path was provided, return an error
-  if (pathToWatch.empty())
+  if (pathToWatch->empty())
   {
     printErrorAndUsage("No path provided after --path or -p option.");
     return ArgParseResult::ERROR;
