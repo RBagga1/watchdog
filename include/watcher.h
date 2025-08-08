@@ -8,6 +8,7 @@
 #include <thread>
 #include "logger.h"
 #include "config.h"
+#include "system.h"
 
 class Watcher
 {
@@ -24,7 +25,7 @@ public:
 private:
   // Member variables
   const WatcherConfig config_;
-  const std::filesystem::path &pathToWatch_;
+  const std::filesystem::path pathToWatch_;
   Logger logger;
   std::unordered_map<std::string, std::filesystem::file_time_type> fileNameToLastEditTimeMap;
 
@@ -32,6 +33,7 @@ private:
   std::thread watchThread_;
   bool doneWatching_{false};
   void executeCommand_();
+  std::mutex mutex_;
 
   // Helper methods
   void watch_();
