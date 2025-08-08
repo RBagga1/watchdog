@@ -13,8 +13,9 @@ int main(int argc, char *argv[])
 {
     LogLevel logLevel = LogLevel::INFO;
     std::string pathToWatch;
+    std::string configFilePath{"config.json"};
     std::vector<std::string> args(argv + 1, argv + argc);
-    ArgParseResult result = validateArgs(args, &pathToWatch, &logLevel);
+    ArgParseResult result = validateArgs(args, &pathToWatch, &configFilePath, &logLevel);
 
     if (result == ArgParseResult::HELP_REQUESTED)
     {
@@ -28,7 +29,7 @@ int main(int argc, char *argv[])
     try
     {
         Watcher watcher(
-            loadConfig("config.json"),
+            loadConfig(configFilePath),
             std::filesystem::path(pathToWatch),
             logLevel);
 
