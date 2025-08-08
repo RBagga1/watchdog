@@ -91,48 +91,63 @@ void Watcher::scanOnce_()
       " at time: " + std::format("{:%Y-%m-%d %H:%M:%S}", std::chrono::system_clock::now()));
   bool changesFound = false;
 
-  std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
-  for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(pathToWatch_, iteratorOptions);
-       iterator_ptr != std::filesystem::recursive_directory_iterator();
-       ++iterator_ptr)
   {
-    const auto &entry = *iterator_ptr;
-    const auto &filePath = entry.path();
-
-    // Skip directory if in ignore list
-    if (entry.is_directory() && config_.ignoreDirs.count(filePath.filename().string()))
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::filesystem::directory_options iteratorOptions = std::filesystem::directory_options::skip_permission_denied;
+    try
     {
-      iterator_ptr.disable_recursion_pending();
-      logger.debug("Ignoring directory: " + filePath.string());
-      continue;
-    }
+      for (auto iterator_ptr = std::filesystem::recursive_directory_iterator(pathToWatch_, iteratorOptions);
+           iterator_ptr != std::filesystem::recursive_directory_iterator();
+           ++iterator_ptr)
+      {
+        const auto &entry = *iterator_ptr;
+        const auto &filePath = entry.path();
 
-    // Scan files and check for changes in unignored directories
-    if (entry.is_regular_file())
+        // Skip directory if in ignore list
+        if (entry.is_directory() && config_.ignoreDirs.count(filePath.filename().string()))
+        {
+          iterator_ptr.disable_recursion_pending();
+          logger.debug("Ignoring directory: " + filePath.string());
+          continue;
+        }
+
+        // Scan files and check for changes in unignored directories
+        if (entry.is_regular_file())
+        {
+          const auto &filePath = entry.path();
+          if (config_.ignoreFileTypes.count(filePath.extension().string()))
+          {
+            logger.debug("Ignoring file: " + filePath.string());
+            continue;
+          }
+
+          const auto &filePathStr = filePath.string();
+          const auto lastWriteTime = std::filesystem::last_write_time(filePath);
+
+          if (fileNameToLastEditTimeMap.find(filePathStr) == fileNameToLastEditTimeMap.end() ||
+              fileNameToLastEditTimeMap[filePathStr] < lastWriteTime)
+          {
+            changesFound = true;
+            logger.info("Change detected in file: " + filePathStr);
+          }
+          fileNameToLastEditTimeMap[filePathStr] = lastWriteTime;
+        }
+      }
+    }
+    catch (const std::filesystem::filesystem_error &e)
     {
-      const auto &filePath = entry.path();
-      if (config_.ignoreFileTypes.count(filePath.extension().string()))
-      {
-        logger.debug("Ignoring file: " + filePath.string());
-        continue;
-      }
-
-      const auto &filePathStr = filePath.string();
-      const auto lastWriteTime = std::filesystem::last_write_time(filePath);
-
-      if (fileNameToLastEditTimeMap.find(filePathStr) == fileNameToLastEditTimeMap.end() ||
-          fileNameToLastEditTimeMap[filePathStr] < lastWriteTime)
-      {
-        changesFound = true;
-        logger.info("Change detected in file: " + filePathStr);
-      }
-      fileNameToLastEditTimeMap[filePathStr] = lastWriteTime;
+      logger.error("Filesystem error during scan: " + std::string(e.what()));
+      return;
     }
-  }
-
-  if (changesFound)
-  {
-    logger.info("Changes detected during scan, executing command.");
-    executeCommand_();
+    catch (const std::exception &e)
+    {
+      logger.error("Error during scan: " + std::string(e.what()));
+      return;
+    }
+    if (changesFound)
+    {
+      logger.info("Changes detected during scan, executing command.");
+      executeCommand_();
+    }
   }
 }
