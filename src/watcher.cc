@@ -38,10 +38,18 @@ void Watcher::executeCommand_()
     my_system::CommandResult commandResult = my_system::executeCommand(config_.commandToExecute);
     if (commandResult.exitCode != 0)
     {
+      my_system::showNotification(config_.commandToExecute + " failed",
+                                  commandResult.stdout,
+                                  commandResult.exitCode,
+                                  "error");
       logger.error("Command execution failed with code: " + std::to_string(commandResult.exitCode));
       return;
     }
 
+    my_system::showNotification(config_.commandToExecute + " succeeded",
+                                commandResult.stdout,
+                                commandResult.exitCode,
+                                "success");
     logger.info("Command executed successfully.");
     logger.debug("Command output: " + commandResult.stdout);
   }

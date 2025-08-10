@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <iostream>
+#include <sstream>
 #include <sys/wait.h>
 
 #define BUFFER_SIZE 4096
@@ -54,5 +55,17 @@ namespace my_system
    * @throws std::runtime_error if the command fails to execute or read.
    */
   CommandResult executeCommand(const std::string &command);
+
+  /**
+   * Shows a notification via a python script.
+   * @param title The title of the notification.
+   * @param message The message content of the notification.
+   * @param exitCode The exit code of the command.
+   * @param status The status of the command execution (success or error).
+   */
+  void showNotification(const std::string &title,
+                        const std::string &message,
+                        int exitCode,
+                        const std::string &status);
 };
 #endif // SYSTEM_H

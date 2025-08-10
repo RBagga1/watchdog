@@ -25,3 +25,24 @@ my_system::CommandResult my_system::executeCommand(const std::string &command)
   result.stdout = std::move(stdout);
   return result;
 }
+
+void my_system::showNotification(const std::string &title,
+                                 const std::string &message,
+                                 int exitCode,
+                                 const std::string &status)
+{
+  // Construct the command to execute the Python script
+  std::stringstream command{};
+  command << "python3 src/notify.py "
+          << "-t \"" << title << "\" "
+          << "-m \"" << message << "\" "
+          << "-e " << exitCode << " "
+          << "-s " << status;
+
+  // Execute the command
+  int result = std::system(command.str().c_str());
+  if (result != 0)
+  {
+    std::cerr << "Failed to execute notification command: " << command.str() << std::endl;
+  }
+}
