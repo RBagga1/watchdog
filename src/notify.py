@@ -9,7 +9,6 @@ SUCCESS_BG_COLOR = "#83c983"
 SUCCESS_FG_COLOR = "#000000"
 WINDOW_WIDTH = 400
 WINDOW_HEIGHT = 120
-DISPLAY_TIME_SECONDS = 5
 PADDING = 20
 
 
@@ -108,7 +107,6 @@ def show_notification(
 
     # Show window
     root.deiconify()
-    root.after(DISPLAY_TIME_SECONDS * 1000, root.destroy)
     root.mainloop()
 
 
