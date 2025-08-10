@@ -59,6 +59,7 @@ void Watcher::watch_()
 {
   logger.info("Performing initial scan for changes in path: " + pathToWatch_.string());
   scanOnce_(); // Initial scan to populate the map
+  initialScanDone_ = true;
 
   while (!doneWatching_)
   {
@@ -153,7 +154,7 @@ void Watcher::scanOnce_()
       logger.error("Error during scan: " + std::string(e.what()));
       return;
     }
-    if (changesFound)
+    if (changesFound && initialScanDone_)
     {
       logger.info("Changes detected during scan, executing command.");
       executeCommand_();

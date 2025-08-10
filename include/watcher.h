@@ -28,6 +28,7 @@ private:
   const std::filesystem::path pathToWatch_;
   Logger logger;
   std::unordered_map<std::string, std::filesystem::file_time_type> fileNameToLastEditTimeMap;
+  bool initialScanDone_{false};
 
   // Watching thread and related variables
   std::thread watchThread_;
