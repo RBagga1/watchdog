@@ -35,14 +35,15 @@ void Watcher::executeCommand_()
   if (!config_.commandToExecute.empty())
   {
     logger.info("Executing command: " + config_.commandToExecute);
-    int result = std::system(config_.commandToExecute.c_str());
-    if (result != 0)
+    my_system::CommandResult commandResult = my_system::executeCommand(config_.commandToExecute);
+    if (commandResult.exitCode != 0)
     {
-      logger.error("Command execution failed with code: " + std::to_string(result));
+      logger.error("Command execution failed with code: " + std::to_string(commandResult.exitCode));
       return;
     }
 
     logger.info("Command executed successfully.");
+    logger.debug("Command output: " + commandResult.stdout);
   }
 }
 

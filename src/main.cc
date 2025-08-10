@@ -5,7 +5,6 @@
 #include "watcher.h"
 #include "config.h"
 #include "checkargs.h"
-#include "system.h"
 
 namespace fs = std::filesystem;
 
