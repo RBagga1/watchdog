@@ -82,19 +82,29 @@ def show_notification(
     root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{x_pos}+{y_pos}")
     root.attributes("-topmost", True)
 
-    # Create and style the label
-    label = tk.Label(
-        root,
-        text=format_msg(status, message, exit_code),
+    # Frame for gluing text and scrollbar widgets together
+    frame = tk.Frame(root, bg=bg_color)
+    frame.pack(expand=True, fill=tk.BOTH, padx=1, pady=1)
+
+    # Creating a scrollbar
+    scrollbar = tk.Scrollbar(frame)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Create and style text widget
+    text_widget = tk.Text(
+        frame,
+        wrap=tk.WORD,
+        font=("sans-serif", 10),
         bg=bg_color,
         fg=fg_color,
-        font=("Arial", 10),
-        padx=15,
-        pady=15,
-        wraplength=WINDOW_WIDTH - 30,
-        justify=tk.LEFT,
+        yscrollcommand=scrollbar.set,
+        relief=tk.FLAT,
     )
-    label.pack(expand=True, fill=tk.BOTH)
+    text_widget.pack(expand=True, fill=tk.BOTH, padx=5, pady=5)
+
+    formatted_msg = format_msg(status, message, exit_code)
+    text_widget.insert(tk.END, formatted_msg)
+    text_widget.config(state=tk.DISABLED)
 
     # Show window
     root.deiconify()
@@ -103,10 +113,6 @@ def show_notification(
 
 
 def main():
-    pass
-
-
-if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Show a notification for the output of a command."
     )
@@ -139,3 +145,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     show_notification(args.title, args.message, args.exit_code, args.status)
+
+
+if __name__ == "__main__":
+    main()
