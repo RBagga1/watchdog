@@ -7,16 +7,31 @@ project(watchdog VERSION 1.0)
 # Min c++ version
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_DEPENDS_USE_COMPILER FALSE)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Exe target name
-add_executable(watchdog
-    src/main.cc
+# === Core library ===
+add_library(watchdog_core
     src/watcher.cc
     src/fileutil.cc
     src/config.cc
     src/checkargs.cc
+    src/system.cc
 )
+
+# Core library includes
+target_include_directories(watchdog_core PUBLIC include)
+
+# Link dependencies for core library
+target_link_libraries(watchdog_core
+    PRIVATE cpp_logger
+    PRIVATE nlohmann_json::nlohmann_json
+)
+
+# === Executable ===
+add_executable(watchdog src/main.cc)
+
+# Executable depends on core library
+target_link_libraries(watchdog PRIVATE watchdog_core cpp_logger nlohmann_json::nlohmann_json)
 
 # Dir containing watchdog's headers
 target_include_directories(watchdog PRIVATE include)
@@ -28,12 +43,5 @@ set_target_properties(watchdog
 )
 
 # --- Dependencies ---
-
-# Add the subdirectory containing the logger's CMakeLists.txt
 add_subdirectory(libs/cpp_logger)
-
-# Add the subdirectory for nlohmann/json lib
 add_subdirectory(libs/json)
-
-# Link logger library to the watchdog executable
-target_link_libraries(watchdog PRIVATE cpp_logger nlohmann_json::nlohmann_json)
