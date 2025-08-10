@@ -57,16 +57,15 @@ ArgParseResult validateArgs(
         }
       }
     }
-
-    // If no path for path to watch was provided, return an error
-    if (pathToWatch->empty())
-    {
-      printErrorAndUsage("No path provided after --path or -p option.");
-      return ArgParseResult::ERROR;
-    }
-
-    return ArgParseResult::SUCCESS;
   }
+  // If no path for path to watch was provided, return an error
+  if (pathToWatch->empty())
+  {
+    printErrorAndUsage("No path provided after --path or -p option.");
+    return ArgParseResult::ERROR;
+  }
+
+  return ArgParseResult::SUCCESS;
 }
 
 void printErrorAndUsage(const std::string &errorMessage)
