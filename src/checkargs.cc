@@ -19,49 +19,23 @@ ArgParseResult validateArgs(
     }
     else if (args[i] == "--path" || args[i] == "-p")
     {
-      if (i + 1 < args.size())
+      if (parseFilepathFlag(args, i, pathToWatch) == -1)
       {
-        // Check if the next argument is another flag
-        if (args[i + 1].starts_with("-"))
-        {
-          printErrorAndUsage("No path provided after --path or -p option.");
-          return ArgParseResult::ERROR;
-        }
-
-        // Valid string provided
-        *pathToWatch = args[++i];
-        if (!std::filesystem::exists(*pathToWatch))
-        {
-          printErrorAndUsage("Provided path does not exist: " + *pathToWatch);
-          return ArgParseResult::ERROR;
-        }
+        return ArgParseResult::ERROR;
       }
     }
     else if (args[i] == "--config" || args[i] == "-c")
     {
-      if (i + 1 < args.size())
+      if (parseFilepathFlag(args, i, configFilePath) == -1)
       {
-        // Check if the next argument is another flag
-        if (args[i + 1].starts_with("-"))
-        {
-          printErrorAndUsage("No config file provided after --config or -c option.");
-          return ArgParseResult::ERROR;
-        }
-
-        // Valid string provided
-        *configFilePath = args[++i];
-        if (!std::filesystem::exists(*configFilePath))
-        {
-          printErrorAndUsage("Provided config file does not exist: " + *configFilePath);
-          return ArgParseResult::ERROR;
-        }
+        return ArgParseResult::ERROR;
       }
     }
   }
   // If no path for path to watch was provided, return an error
   if (pathToWatch->empty())
   {
-    printErrorAndUsage("No path provided after --path or -p option.");
+    printErrorAndUsage("Required argument --path or -p is missing.");
     return ArgParseResult::ERROR;
   }
 
@@ -84,4 +58,30 @@ void printUsage()
                "  -c, --config <file>  Specify the config file to use\n"
                "  -d, --debug          Enable debug logging\n"
                "  -h, --help           Show this help message\n";
+}
+
+int parseFilepathFlag(std::vector<std::string> &args, int currentIndex, std::string *filepath)
+{
+  if ((currentIndex + 1) >= args.size())
+  {
+    printErrorAndUsage("No filepath provided for " + args[currentIndex]);
+    return -1;
+  }
+
+  // Check if the next arg is another flag
+  if (args[currentIndex + 1].starts_with("-"))
+  {
+    printErrorAndUsage("No path provided after " + args[currentIndex] + " option.");
+    return -1;
+  }
+
+  // Valid string provided
+  *filepath = args[++currentIndex];
+  if (!std::filesystem::exists(*filepath))
+  {
+    printErrorAndUsage("Provided path does not exist: " + *filepath);
+    return -1;
+  }
+
+  return 0;
 }

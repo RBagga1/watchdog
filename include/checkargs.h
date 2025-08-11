@@ -24,4 +24,6 @@ void printUsage();
 
 void printErrorAndUsage(const std::string &errorMessage);
 
+int parseFilepathFlag(std::vector<std::string> &args, int currentIndex, std::string *filepath);
+
 #endif // CHECKARGS_H
