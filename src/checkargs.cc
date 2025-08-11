@@ -1,4 +1,6 @@
 #include "checkargs.h"
+#include <filesystem>
+#include <iostream>
 
 ArgParseResult validateArgs(
     std::vector<std::string> &args,

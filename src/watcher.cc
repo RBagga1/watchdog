@@ -2,6 +2,8 @@
 #include "fileutil.h"
 #include <chrono>
 #include <format>
+#include <unordered_set>
+#include "system.h"
 
 Watcher::Watcher(WatcherConfig config,
                  std::filesystem::path pathToWatch,

@@ -2,7 +2,6 @@
 #define FILEUTIL_H
 
 #include <string>
-#include <filesystem>
 
 namespace FileUtil
 {

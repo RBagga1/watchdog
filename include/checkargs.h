@@ -3,8 +3,6 @@
 
 #include <vector>
 #include <string>
-#include <iostream>
-#include <filesystem>
 #include "logger.h"
 
 enum class ArgParseResult

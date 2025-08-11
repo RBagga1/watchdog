@@ -4,10 +4,6 @@
 #include <string>
 #include <filesystem>
 #include <unordered_set>
-#include <chrono>
-#include "nlohmann/json.hpp"
-
-using json = nlohmann::json;
 
 // This structure is used to define the parameters for the file watcher
 // including the scan interval, directories to ignore, file types to ignore,

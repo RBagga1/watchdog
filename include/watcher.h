@@ -3,12 +3,10 @@
 
 #include <filesystem>
 #include <unordered_map>
-#include <unordered_set>
 #include <string>
 #include <thread>
 #include "logger.h"
 #include "config.h"
-#include "system.h"
 
 class Watcher
 {

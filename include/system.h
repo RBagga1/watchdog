@@ -3,11 +3,8 @@
 
 #include <string>
 #include <cstdio>
-#include <array>
-#include <memory>
-#include <iostream>
-#include <sstream>
 #include <sys/wait.h>
+#include <stdexcept>
 
 #define BUFFER_SIZE 4096
 

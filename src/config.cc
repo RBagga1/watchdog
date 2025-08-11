@@ -1,6 +1,10 @@
 #include "config.h"
 #include <fstream>
 #include <stdexcept>
+#include <chrono>
+#include "nlohmann/json.hpp"
+
+using json = nlohmann::json;
 
 WatcherConfig loadConfig(const std::filesystem::path &configFilePath)
 {

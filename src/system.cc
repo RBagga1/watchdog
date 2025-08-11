@@ -1,4 +1,8 @@
 #include "system.h"
+#include <array>
+#include <memory>
+#include <iostream>
+#include <sstream>
 
 my_system::CommandResult my_system::executeCommand(const std::string &command)
 {
